@@ -1,0 +1,1171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover"/>
+<meta name="theme-color" content="#0B0E17"/>
+<meta name="mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+<meta name="apple-mobile-web-app-title" content="ROAM"/>
+<meta name="description" content="Multi-modal multi-day travel booking. Train, tube, metro, bus, ferry, flight, cab and taxi — book your whole week in one go."/>
+<title>ROAM — Multi-Travel Booking</title>
+<link rel="manifest" href="manifest.json"/>
+<link rel="apple-touch-icon" href="icons/icon-192.png"/>
+<link rel="apple-touch-icon" sizes="152x152" href="icons/icon-152.png"/>
+<link rel="apple-touch-icon" sizes="144x144" href="icons/icon-144.png"/>
+<link rel="apple-touch-icon" sizes="128x128" href="icons/icon-128.png"/>
+<link rel="icon" type="image/png" sizes="96x96" href="icons/icon-96.png"/>
+<link rel="icon" type="image/x-icon" href="favicon.ico"/>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
+
+<style>
+/* ── RESET & VARS ─────────────────────────────────────── */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+:root{
+  --bg:#0B0E17; --bg2:#131720; --bg3:#1A1F2E; --bg4:#222840;
+  --bd:#2C3350; --txt:#EAECF4; --mut:#6B748F; --acc:#F5A623;
+  --red:#E03E3E; --green:#1DB954; --blue:#3B82F6;
+  --safe-top:env(safe-area-inset-top,0px);
+  --safe-bot:env(safe-area-inset-bottom,0px);
+  --nav-h:64px;
+}
+html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--txt);font-family:'Outfit',sans-serif;font-size:16px;-webkit-font-smoothing:antialiased}
+
+/* ── LAYOUT ──────────────────────────────────────────── */
+#app{display:flex;flex-direction:column;height:100%;height:100dvh}
+#statusbar{height:var(--safe-top);background:var(--bg);flex-shrink:0}
+#topbar{flex-shrink:0;height:56px;background:rgba(11,14,23,.96);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border-bottom:1px solid var(--bd);display:flex;align-items:center;padding:0 20px;gap:12px;z-index:100}
+#screens{flex:1;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;overscroll-behavior:contain}
+#navbar{flex-shrink:0;height:calc(var(--nav-h) + var(--safe-bot));background:rgba(11,14,23,.97);border-top:1px solid var(--bd);display:flex;align-items:flex-start;padding-top:8px;padding-bottom:var(--safe-bot)}
+
+/* ── TOPBAR ──────────────────────────────────────────── */
+.tb-back{background:none;border:none;color:var(--acc);font-size:20px;padding:8px;cursor:pointer;display:none}
+.tb-logo{display:flex;align-items:center;gap:8px}
+.tb-mark{font-size:20px;color:var(--acc)}
+.tb-name{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:3px;color:#fff}
+.tb-title{font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:2px;color:#fff;display:none}
+.tb-badge{margin-left:auto;background:var(--acc);color:var(--bg);border-radius:10px;padding:2px 8px;font-size:11px;font-weight:800;display:none}
+
+/* ── BOTTOM NAV ──────────────────────────────────────── */
+.nav-btn{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;background:none;border:none;color:var(--mut);cursor:pointer;padding:0 4px;transition:color .15s}
+.nav-btn.active{color:var(--acc)}
+.nav-icon{font-size:22px;line-height:1}
+.nav-lbl{font-size:10px;font-weight:600;letter-spacing:.5px}
+
+/* ── SCREEN BASE ─────────────────────────────────────── */
+.screen{display:none;padding:0 0 16px;animation:fadeUp .3s ease both}
+.screen.active{display:block}
+@keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+
+/* ── SECTION PADDING ─────────────────────────────────── */
+.px{padding-left:20px;padding-right:20px}
+
+/* ── HOME ────────────────────────────────────────────── */
+.home-hero{padding:24px 20px 20px;background:linear-gradient(160deg,#131A2E 0%,var(--bg) 60%)}
+.home-eyebrow{font-size:11px;text-transform:uppercase;letter-spacing:3px;color:var(--mut);margin-bottom:10px}
+.home-h1{font-family:'Bebas Neue',sans-serif;font-size:52px;line-height:.95;letter-spacing:2px;color:#fff;margin-bottom:12px}
+.home-h1 em{color:var(--acc);font-style:normal}
+.home-sub{font-size:14px;color:var(--mut);line-height:1.6}
+
+/* Mode scroll */
+.mode-scroll{display:flex;gap:8px;overflow-x:auto;padding:16px 20px;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+.mode-scroll::-webkit-scrollbar{display:none}
+.mode-chip{flex-shrink:0;display:flex;align-items:center;gap:6px;padding:8px 14px;border:1.5px solid var(--bd);border-radius:24px;background:transparent;color:var(--mut);font-family:inherit;font-size:13px;font-weight:500;white-space:nowrap;transition:all .15s}
+.mode-chip.active{color:#fff}
+.mode-chip span:first-child{font-size:16px}
+
+/* Search card */
+.search-card{margin:0 16px;background:var(--bg2);border:1px solid var(--bd);border-radius:20px;padding:20px;margin-bottom:16px}
+.field-label{font-size:10px;text-transform:uppercase;letter-spacing:2px;color:var(--mut);font-weight:700;margin-bottom:6px}
+.field-row{display:flex;gap:10px;align-items:center;margin-bottom:12px}
+.field-box{flex:1;background:var(--bg3);border:1.5px solid var(--bd);border-radius:14px;padding:12px 16px;position:relative}
+.field-input{width:100%;background:transparent;border:none;outline:none;font-size:16px;font-weight:500;color:#fff;font-family:inherit;caret-color:var(--acc)}
+.field-input::placeholder{color:#3D4560}
+.swap-btn{width:44px;height:44px;background:var(--bg3);border:1.5px solid var(--bd);border-radius:12px;color:var(--acc);font-size:18px;display:flex;align-items:center;justify-content:center;flex-shrink:0;cursor:pointer}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px}
+.date-input,.pax-ctrl{background:var(--bg3);border:1.5px solid var(--bd);border-radius:12px;padding:10px 14px}
+.date-input input{width:100%;background:transparent;border:none;outline:none;font-size:15px;color:#fff;font-family:inherit;color-scheme:dark}
+.pax-ctrl{display:flex;align-items:center;gap:10px}
+.pax-btn{width:32px;height:32px;background:var(--bg4);border:1px solid var(--bd);border-radius:8px;color:#fff;font-size:18px;font-weight:700;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0}
+.pax-num{flex:1;text-align:center;font-size:16px;font-weight:700;color:#fff}
+.search-btn{width:100%;padding:15px;border-radius:14px;border:none;color:#fff;font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:2px;cursor:pointer}
+
+/* Autocomplete */
+.suggest-box{position:absolute;top:calc(100% + 6px);left:0;right:0;background:var(--bg2);border:1px solid var(--bd);border-radius:14px;z-index:500;overflow:hidden;box-shadow:0 16px 48px rgba(0,0,0,.6);max-height:220px;overflow-y:auto}
+.suggest-item{display:flex;align-items:center;gap:10px;width:100%;padding:12px 16px;border:none;background:none;color:var(--txt);font-family:inherit;font-size:14px;cursor:pointer;text-align:left}
+.suggest-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
+
+/* Feature cards */
+.feat-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:0 16px 16px}
+.feat-card{background:var(--bg2);border:1px solid var(--bd);border-radius:16px;padding:16px}
+.feat-icon{font-size:24px;margin-bottom:8px}
+.feat-title{font-family:'Bebas Neue',sans-serif;font-size:15px;letter-spacing:1px;color:#fff;margin-bottom:4px}
+.feat-body{font-size:12px;color:var(--mut);line-height:1.5}
+
+/* ── RESULTS ─────────────────────────────────────────── */
+.results-header{padding:16px 20px;border-bottom:1px solid var(--bd)}
+.results-route{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:2px;color:#fff;margin-bottom:2px}
+.results-sub{font-size:13px;color:var(--mut)}
+.results-list{padding:12px 16px;display:flex;flex-direction:column;gap:10px}
+.j-card{background:var(--bg2);border:1px solid var(--bd);border-radius:18px;padding:16px;cursor:pointer;animation:fadeUp .3s ease both}
+.j-times{display:flex;align-items:center;gap:8px;margin-bottom:12px}
+.j-big{font-family:'Bebas Neue',sans-serif;font-size:28px;letter-spacing:1px;color:#fff;line-height:1}
+.j-st{font-size:11px;color:var(--mut);margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:90px}
+.j-mid{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px}
+.j-line{display:flex;align-items:center;width:100%;gap:0}
+.j-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+.j-track{height:2px;flex:1}
+.j-dur{font-size:10px;color:var(--mut);background:var(--bg3);border:1px solid var(--bd);border-radius:8px;padding:2px 6px;white-space:nowrap}
+.j-bottom{display:flex;align-items:center;justify-content:space-between;border-top:1px solid var(--bd);padding-top:10px}
+.j-op{font-size:12px;color:var(--mut)}
+.j-price-col{text-align:right}
+.j-price{font-family:'Bebas Neue',sans-serif;font-size:26px;letter-spacing:1px;line-height:1}
+.j-per{font-size:10px;color:var(--mut)}
+.j-seats{font-size:11px;font-weight:600}
+.j-sel-btn{padding:8px 16px;border:none;border-radius:10px;color:#fff;font-family:inherit;font-size:13px;font-weight:700;cursor:pointer;margin-top:10px;width:100%}
+
+/* ── SCHEDULE ────────────────────────────────────────── */
+.journey-recap{background:var(--bg3);border-radius:14px;padding:16px;margin:0 16px 16px;border-left:3px solid var(--acc)}
+.recap-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+.recap-time{font-family:'Bebas Neue',sans-serif;font-size:28px;letter-spacing:1px;color:#fff}
+.recap-st{font-size:11px;color:var(--mut);margin-top:2px}
+.recap-mid{text-align:center}
+.recap-arrow{font-size:13px;font-weight:700;letter-spacing:2px}
+.recap-dur{font-size:11px;color:var(--mut)}
+.recap-meta{font-size:12px;color:var(--mut);padding-top:10px;border-top:1px solid var(--bd)}
+
+.sec-card{background:var(--bg2);border:1px solid var(--bd);border-radius:16px;padding:18px;margin:0 16px 12px}
+.sec-label{font-size:10px;text-transform:uppercase;letter-spacing:2px;color:var(--mut);font-weight:700;margin-bottom:14px}
+
+.cls-row{display:flex;gap:10px}
+.cls-btn{flex:1;padding:12px;border:1.5px solid var(--bd);border-radius:12px;background:transparent;font-family:inherit;text-align:left;cursor:pointer;transition:all .15s}
+.cls-name{font-weight:700;font-size:14px;color:var(--txt);display:block;margin-bottom:3px}
+.cls-price{font-size:12px;color:var(--mut);display:block}
+
+.stype-list{display:flex;flex-direction:column;gap:8px}
+.stype-btn{display:flex;align-items:center;gap:12px;padding:14px;border:1.5px solid var(--bd);border-radius:14px;background:transparent;font-family:inherit;cursor:pointer;text-align:left;transition:all .15s}
+.stype-icon{font-size:22px;flex-shrink:0}
+.stype-name{font-weight:700;font-size:14px;color:var(--txt);margin-bottom:2px}
+.stype-hint{font-size:12px;color:var(--mut)}
+
+.dow-row{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:16px}
+.dow-btn{padding:8px 10px;border:1.5px solid var(--bd);border-radius:8px;background:transparent;font-family:inherit;font-weight:700;font-size:12px;color:var(--mut);cursor:pointer;transition:all .15s;min-width:40px;text-align:center}
+.dow-btn.active{color:#fff}
+
+.range-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
+.range-field label{font-size:10px;text-transform:uppercase;letter-spacing:1.5px;color:var(--mut);font-weight:700;display:block;margin-bottom:6px}
+.range-field input{width:100%;background:var(--bg3);border:1.5px solid var(--bd);border-radius:10px;padding:10px 12px;font-size:14px;font-family:inherit;color:#fff;outline:none;color-scheme:dark}
+.check-row{display:flex;align-items:center;gap:10px;cursor:pointer}
+.check-row input{width:18px;height:18px;cursor:pointer}
+.check-row span{font-size:13px;color:var(--txt)}
+
+.hint-text{font-size:13px;color:var(--mut);line-height:1.55;margin-top:8px}
+.err-text{font-size:13px;color:var(--red);margin-top:8px}
+
+.pax-lg-row{display:flex;align-items:center;gap:16px}
+.pax-lg-btn{width:44px;height:44px;border-radius:12px;border:1.5px solid var(--bd);background:transparent;color:#fff;font-size:22px;font-weight:700;display:flex;align-items:center;justify-content:center;cursor:pointer}
+.pax-lg-num{font-size:17px;font-weight:700;color:#fff}
+
+/* Summary sticky bar at bottom of schedule */
+.sum-bar{position:sticky;bottom:0;background:var(--bg);border-top:1px solid var(--bd);padding:14px 16px calc(14px + var(--safe-bot));z-index:50}
+.sum-bar-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.sum-bar-count{font-size:13px;color:var(--mut)}
+.sum-bar-total{font-family:'Bebas Neue',sans-serif;font-size:26px;letter-spacing:1px}
+.sum-bar-btn{width:100%;padding:15px;border:none;border-radius:14px;color:#fff;font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:2px;cursor:pointer}
+.sum-dates{display:flex;gap:6px;overflow-x:auto;padding-bottom:8px;scrollbar-width:none}
+.sum-dates::-webkit-scrollbar{display:none}
+.sum-pill{flex-shrink:0;display:flex;gap:5px;align-items:center;border-radius:20px;padding:4px 10px;border:1px solid;font-size:11px;font-weight:600}
+.sum-dow{font-weight:800;font-size:10px;text-transform:uppercase}
+.more-pill{flex-shrink:0;font-size:11px;color:var(--mut);background:var(--bg3);border:1px solid var(--bd);border-radius:20px;padding:4px 10px;white-space:nowrap;align-self:center}
+
+/* Calendar */
+.cal-wrap{max-width:340px}
+.cal-nav{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+.cal-nav-btn{width:36px;height:36px;background:var(--bg3);border:1px solid var(--bd);border-radius:8px;color:var(--txt);font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.cal-month{font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:2px;color:#fff}
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px}
+.cal-head{text-align:center;font-size:10px;font-weight:700;color:var(--mut);padding:0 0 6px;text-transform:uppercase}
+.cal-day{border:1.5px solid var(--bd);border-radius:8px;padding:7px 0;background:var(--bg3);font-size:13px;color:var(--txt);cursor:pointer;font-family:inherit;text-align:center;transition:all .1s}
+.cal-day.past{opacity:.25;pointer-events:none}
+.cal-day.sel{font-weight:800;color:#fff}
+.cal-count{margin-top:10px;font-size:12px;color:var(--mut);text-align:center}
+
+/* ── TRIPS ───────────────────────────────────────────── */
+.trips-empty{text-align:center;padding:80px 20px}
+.trips-empty-icon{font-size:56px;margin-bottom:16px;display:block}
+.trips-empty-title{font-family:'Bebas Neue',sans-serif;font-size:28px;letter-spacing:2px;color:#fff;margin-bottom:8px}
+.trips-empty-sub{font-size:14px;color:var(--mut);margin-bottom:28px;line-height:1.6}
+.trips-empty-btn{padding:14px 32px;border:none;border-radius:14px;background:var(--acc);color:var(--bg);font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:2px;cursor:pointer}
+.trip-card{margin:0 16px 12px;background:var(--bg2);border:1px solid var(--bd);border-radius:18px;overflow:hidden}
+.trip-top-bar{height:4px}
+.trip-header{padding:16px;cursor:pointer}
+.trip-mode-pill{display:inline-flex;align-items:center;gap:5px;border-radius:20px;padding:3px 10px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;margin-bottom:10px}
+.trip-route{font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:1px;color:#fff;margin-bottom:3px}
+.trip-meta{font-size:12px;color:var(--mut);margin-bottom:10px}
+.trip-footer-row{display:flex;justify-content:space-between;align-items:center}
+.trip-total{font-family:'Bebas Neue',sans-serif;font-size:24px;letter-spacing:1px}
+.trip-count{font-size:13px;color:var(--mut)}
+.trip-ref{font-size:10px;color:#444;font-family:monospace}
+.trip-expand{border-top:1px solid var(--bd);padding:16px}
+.trip-exp-label{font-size:10px;text-transform:uppercase;letter-spacing:2px;color:var(--mut);font-weight:700;margin-bottom:12px}
+.trip-date-grid{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px}
+.trip-date-chip{display:flex;gap:6px;align-items:center;border:1.5px solid;border-radius:20px;padding:4px 10px}
+.trip-breakdown{font-size:13px;color:var(--mut);line-height:1.5}
+.trip-chev{font-size:12px;color:#444}
+
+/* ── TOAST ───────────────────────────────────────────── */
+#toast{position:fixed;bottom:calc(var(--nav-h) + var(--safe-bot) + 12px);left:50%;transform:translateX(-50%) translateY(20px);opacity:0;transition:all .3s ease;padding:12px 22px;border-radius:30px;font-size:13px;font-weight:600;color:#fff;white-space:nowrap;z-index:9999;pointer-events:none;box-shadow:0 8px 32px rgba(0,0,0,.5)}
+#toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+/* ── MISC ────────────────────────────────────────────── */
+.divider{height:1px;background:var(--bd);margin:0 16px 16px}
+.spacer-bot{height:16px}
+input[type="date"]::-webkit-calendar-picker-indicator{filter:invert(1);opacity:.5}
+button:active{opacity:.75}
+</style>
+</head>
+<body>
+
+<div id="app">
+  <div id="statusbar"></div>
+
+  <!-- TOP BAR -->
+  <div id="topbar">
+    <button class="tb-back" id="topback" onclick="goBack()">←</button>
+    <div class="tb-logo" id="tb-logo">
+      <span class="tb-mark">◈</span>
+      <span class="tb-name">ROAM</span>
+    </div>
+    <span class="tb-title" id="tb-title"></span>
+    <span class="tb-badge" id="tb-badge"></span>
+  </div>
+
+  <!-- SCREENS -->
+  <div id="screens">
+
+    <!-- ══ HOME ══ -->
+    <div id="screen-home" class="screen active">
+      <div class="home-hero">
+        <div class="home-eyebrow">Book smarter. Travel further.</div>
+        <h1 class="home-h1">Your journey,<br/><em id="hero-accent">every day.</em></h1>
+        <p class="home-sub">All transport in one app. Book a whole week in a single checkout — no repeating yourself.</p>
+      </div>
+
+      <div class="mode-scroll" id="mode-scroll"></div>
+
+      <div class="search-card" id="search-card">
+        <div class="field-row">
+          <div class="field-box" id="from-box" style="position:relative">
+            <div class="field-label">FROM</div>
+            <input class="field-input" id="from-input" placeholder="Origin…" autocomplete="off" autocorrect="off" spellcheck="false"/>
+            <div class="suggest-box" id="from-suggest" style="display:none"></div>
+          </div>
+          <button class="swap-btn" onclick="swapLocations()">⇄</button>
+          <div class="field-box" id="to-box" style="position:relative">
+            <div class="field-label">TO</div>
+            <input class="field-input" id="to-input" placeholder="Destination…" autocomplete="off" autocorrect="off" spellcheck="false"/>
+            <div class="suggest-box" id="to-suggest" style="display:none"></div>
+          </div>
+        </div>
+        <div class="row2">
+          <div class="date-input">
+            <div class="field-label">DATE</div>
+            <input type="date" id="date-input"/>
+          </div>
+          <div class="pax-ctrl">
+            <button class="pax-btn" onclick="changePax(-1)">−</button>
+            <span class="pax-num" id="pax-num">1</span>
+            <button class="pax-btn" onclick="changePax(1)">+</button>
+          </div>
+        </div>
+        <button class="search-btn" id="search-btn" onclick="doSearch()">Find Journeys →</button>
+      </div>
+
+      <div class="feat-grid">
+        <div class="feat-card">
+          <div class="feat-icon">📅</div>
+          <div class="feat-title">Multi-Day</div>
+          <p class="feat-body">Book your commute for a week or month in one go.</p>
+        </div>
+        <div class="feat-card">
+          <div class="feat-icon">🔀</div>
+          <div class="feat-title">All Modes</div>
+          <p class="feat-body">Train, tube, bus, ferry, flight, cab — all in one place.</p>
+        </div>
+        <div class="feat-card">
+          <div class="feat-icon">💷</div>
+          <div class="feat-title">Full Price</div>
+          <p class="feat-body">See your total for all days before you pay.</p>
+        </div>
+        <div class="feat-card">
+          <div class="feat-icon">🎫</div>
+          <div class="feat-title">Instant</div>
+          <p class="feat-body">Tickets appear in My Trips immediately.</p>
+        </div>
+      </div>
+    </div><!-- /home -->
+
+    <!-- ══ RESULTS ══ -->
+    <div id="screen-results" class="screen">
+      <div class="results-header">
+        <div class="results-route" id="results-route"></div>
+        <div class="results-sub" id="results-sub"></div>
+      </div>
+      <div class="results-list" id="results-list"></div>
+      <div class="spacer-bot"></div>
+    </div>
+
+    <!-- ══ SCHEDULE ══ -->
+    <div id="screen-schedule" class="screen">
+      <div style="height:12px"></div>
+      <div class="journey-recap" id="journey-recap"></div>
+
+      <!-- ticket class -->
+      <div class="sec-card" id="cls-card" style="display:none">
+        <div class="sec-label">Ticket Class</div>
+        <div class="cls-row" id="cls-row"></div>
+      </div>
+
+      <!-- schedule type -->
+      <div class="sec-card">
+        <div class="sec-label">How Often Are You Travelling?</div>
+        <div class="stype-list">
+          <button class="stype-btn" id="stype-single"   onclick="setSchedType('single')"   >
+            <span class="stype-icon">📌</span><div><div class="stype-name">One day only</div><div class="stype-hint">Single journey on selected date</div></div>
+          </button>
+          <button class="stype-btn" id="stype-recurring" onclick="setSchedType('recurring')">
+            <span class="stype-icon">🔁</span><div><div class="stype-name">Weekly recurring</div><div class="stype-hint">Same day(s) every week — e.g. Mon, Wed, Fri</div></div>
+          </button>
+          <button class="stype-btn" id="stype-range"    onclick="setSchedType('range')"    >
+            <span class="stype-icon">📆</span><div><div class="stype-name">Full date range</div><div class="stype-hint">Every day between two dates</div></div>
+          </button>
+          <button class="stype-btn" id="stype-custom"   onclick="setSchedType('custom')"   >
+            <span class="stype-icon">🗓</span><div><div class="stype-name">Specific dates</div><div class="stype-hint">Hand-pick from a calendar</div></div>
+          </button>
+        </div>
+      </div>
+
+      <!-- config panels -->
+      <div class="sec-card" id="cfg-single" style="display:none">
+        <div class="sec-label">Travel Date</div>
+        <div style="font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:1px;color:#fff;margin-bottom:8px" id="single-date-lbl"></div>
+        <div class="hint-text">Booking a single journey. Choose a different type above to book multiple days.</div>
+      </div>
+
+      <div class="sec-card" id="cfg-recurring" style="display:none">
+        <div class="sec-label">Travel Days of the Week</div>
+        <div class="dow-row" id="dow-row"></div>
+        <div class="err-text" id="dow-err" style="display:none">Select at least one day.</div>
+        <div class="sec-label" style="margin-top:16px">Over This Period</div>
+        <div class="range-row">
+          <div class="range-field">
+            <label>From</label>
+            <input type="date" id="rs-input"/>
+          </div>
+          <div class="range-field">
+            <label>Until</label>
+            <input type="date" id="re-input"/>
+          </div>
+        </div>
+      </div>
+
+      <div class="sec-card" id="cfg-range" style="display:none">
+        <div class="sec-label">Date Range</div>
+        <div class="range-row">
+          <div class="range-field">
+            <label>Start</label>
+            <input type="date" id="rs2-input"/>
+          </div>
+          <div class="range-field">
+            <label>End</label>
+            <input type="date" id="re2-input"/>
+          </div>
+        </div>
+        <label class="check-row">
+          <input type="checkbox" id="no-we-check"/>
+          <span>Weekdays only — skip Sat & Sun</span>
+        </label>
+      </div>
+
+      <div class="sec-card" id="cfg-custom" style="display:none">
+        <div class="sec-label">Pick Your Travel Dates</div>
+        <div id="cal-mount"></div>
+      </div>
+
+      <!-- passengers -->
+      <div class="sec-card">
+        <div class="sec-label">Passengers</div>
+        <div class="pax-lg-row">
+          <button class="pax-lg-btn" id="pax-lg-btn-border" onclick="changeSchedPax(-1)">−</button>
+          <span class="pax-lg-num" id="sched-pax-num">1</span>
+          <button class="pax-lg-btn" id="pax-lg-btn-border2" onclick="changeSchedPax(1)">+</button>
+        </div>
+      </div>
+
+      <div style="height:200px"></div>
+
+      <!-- Sticky summary bar -->
+      <div class="sum-bar" id="sum-bar">
+        <div class="sum-bar-row">
+          <div>
+            <div class="sum-bar-count" id="sum-count">0 journeys selected</div>
+            <div class="sum-dates" id="sum-dates"></div>
+          </div>
+          <div class="sum-bar-total" id="sum-total" style="color:var(--acc)">£0.00</div>
+        </div>
+        <button class="sum-bar-btn" id="confirm-btn" onclick="confirmBooking()">Confirm Booking →</button>
+      </div>
+    </div><!-- /schedule -->
+
+    <!-- ══ TRIPS ══ -->
+    <div id="screen-trips" class="screen">
+      <div id="trips-empty" class="trips-empty" style="display:none">
+        <span class="trips-empty-icon">🗺</span>
+        <h2 class="trips-empty-title">No Trips Yet</h2>
+        <p class="trips-empty-sub">Book your first multi-day journey and it'll appear here with all your scheduled dates.</p>
+        <button class="trips-empty-btn" onclick="navTo('home')">Plan a Journey →</button>
+      </div>
+      <div id="trips-list" style="padding:12px 0 24px"></div>
+    </div>
+
+  </div><!-- /screens -->
+
+  <!-- BOTTOM NAV -->
+  <div id="navbar">
+    <button class="nav-btn active" id="nav-home" onclick="navTo('home')">
+      <span class="nav-icon">🏠</span>
+      <span class="nav-lbl">PLAN</span>
+    </button>
+    <button class="nav-btn" id="nav-trips" onclick="navTo('trips')">
+      <span class="nav-icon">🎫</span>
+      <span class="nav-lbl">TRIPS</span>
+    </button>
+  </div>
+</div><!-- /app -->
+
+<div id="toast"></div>
+
+<script>
+// ══════════════════════════════════════════════════════
+//  DATA
+// ══════════════════════════════════════════════════════
+
+const MODES = [
+  {id:'train', label:'Train',  icon:'🚆', hex:'#F4831F'},
+  {id:'tube',  label:'Tube',   icon:'🚇', hex:'#0050AA'},
+  {id:'metro', label:'Metro',  icon:'🚊', hex:'#8B22B8'},
+  {id:'bus',   label:'Bus',    icon:'🚌', hex:'#0E7A3C'},
+  {id:'ferry', label:'Ferry',  icon:'⛴',  hex:'#0077A8'},
+  {id:'flight',label:'Flight', icon:'✈️', hex:'#CC1F1F'},
+  {id:'cab',   label:'Cab',    icon:'🚕', hex:'#B37F00'},
+  {id:'taxi',  label:'Taxi',   icon:'🚖', hex:'#7A5200'},
+];
+
+const STATIONS = {
+  train:['London Euston',"London King's Cross",'London Paddington','London Victoria','Manchester Piccadilly','Manchester Victoria','Birmingham New Street','Leeds City','Edinburgh Waverley','Glasgow Central','Liverpool Lime Street','Bristol Temple Meads','Cardiff Central','Newcastle Central','Sheffield','Nottingham','York','Cambridge','Oxford','Southampton Central','Reading','Crewe','Preston','Wolverhampton','Coventry'],
+  tube: ["King's Cross St Pancras",'Oxford Circus','Victoria','Waterloo','Liverpool Street','London Bridge','Paddington','Canary Wharf','Bank','Euston Square','Baker Street','Piccadilly Circus','Bond Street','Tottenham Court Road','Stratford','Heathrow Terminal 5','Brixton','Angel','Old Street','Moorgate','Bethnal Green','Mile End','Hammersmith','Earls Court','Notting Hill Gate'],
+  metro:['Manchester Piccadilly','MediaCityUK','Manchester Airport','Salford Quays','Deansgate–Castlefield','Altrincham','Bury','Ashton-under-Lyne','Rochdale','Eccles',"St Peter's Square",'Shudehill','Cornbrook','Wythenshawe','East Didsbury','Trafford Bar','Pomona','Broadway','Harbour City','Anchorage','Exchange Quay','Langworthy','Weaste','Ladywell','Barton Dock Road'],
+  bus:  ['Victoria Coach Station','Manchester Shudehill','Birmingham Digbeth','Leeds City Bus Station','Bristol Bus Station','Oxford Gloucester Green','Cambridge Drummer Street','Glasgow Buchanan','Edinburgh St Andrew Square','Liverpool One','Nottingham Station','Sheffield Interchange','Cardiff Bus Station','Newcastle Haymarket','York Stonebow'],
+  ferry:['Portsmouth Harbour','Southampton Ocean Terminal','Dover Eastern Docks','Poole Quay','Liverpool Pier Head','Hull King George Dock','Harwich International','Newhaven Harbour','Fishguard Harbour','Pembroke Dock','Weymouth','Holyhead','Larne','Belfast Victoria','Cairnryan'],
+  flight:['London Heathrow LHR','London Gatwick LGW','London Stansted STN','Manchester MAN','Birmingham BHX','Edinburgh EDI','Glasgow GLA','Bristol BRS','Leeds Bradford LBA','Newcastle NCL','Liverpool LPL','Belfast City BHD','Cardiff CWL','Exeter EXT','Aberdeen ABZ'],
+  cab:  ['Current Location','Home Address','Work / Office','Hotel','Airport Drop-off','Train Station','City Centre','Hospital','Shopping Centre','University'],
+  taxi: ['Current Location','Home Address','Work / Office','Hotel','Airport Terminal','Train Station','City Centre','Hospital','Restaurant / Venue','Night Club'],
+};
+
+const OPERATORS = {
+  train:['Avanti West Coast','LNER','Great Western Railway','Thameslink','CrossCountry','Northern Rail','Southeastern','TransPennine Express','Chiltern Railways','East Midlands Railway'],
+  tube: ['TfL – Elizabeth Line','TfL – Victoria Line','TfL – Central Line','TfL – Northern Line','TfL – Jubilee Line','TfL – Piccadilly Line'],
+  metro:['Metrolink','West Midlands Metro','Edinburgh Trams','Nottingham NET','Tyne & Wear Metro'],
+  bus:  ['National Express','Megabus','FlixBus','First Bus','Stagecoach','Arriva'],
+  ferry:['Wightlink','Red Funnel','P&O Ferries','Stena Line','Brittany Ferries','DFDS'],
+  flight:['British Airways','easyJet','Ryanair','Jet2','Virgin Atlantic','Wizz Air','TUI Airways'],
+  cab:  ['Uber','Bolt','Ola Cabs','FREE NOW','Lyft'],
+  taxi: ['Addison Lee','ComfortDelGro','Green Tomato','Radio Taxis','City Cabs'],
+};
+
+const WDAYS = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+
+// ══════════════════════════════════════════════════════
+//  STATE
+// ══════════════════════════════════════════════════════
+
+let state = {
+  modeId: 'train',
+  from: '', to: '',
+  date: todayISO(),
+  pax: 1,
+  journeys: [],
+  pick: null,
+  cls: 'Standard',
+  schedType: 'single',
+  schedDays: [],
+  rs: todayISO(),
+  re: shiftDate(todayISO(), 13),
+  rs2: todayISO(),
+  re2: shiftDate(todayISO(), 13),
+  noWE: false,
+  custom: [],
+  schedPax: 1,
+  trips: [],
+};
+
+let currentScreen = 'home';
+let screenHistory = [];
+let calState = { month: new Date().getMonth(), year: new Date().getFullYear() };
+
+// ══════════════════════════════════════════════════════
+//  UTILS
+// ══════════════════════════════════════════════════════
+
+function todayISO() {
+  return new Date().toISOString().split('T')[0];
+}
+function shiftDate(iso, n) {
+  const d = new Date(iso + 'T12:00:00');
+  d.setDate(d.getDate() + n);
+  return d.toISOString().split('T')[0];
+}
+function dayLabel(iso) {
+  return WDAYS[(new Date(iso + 'T12:00:00').getDay() + 6) % 7];
+}
+function fmtShort(iso) {
+  return new Date(iso + 'T12:00:00').toLocaleDateString('en-GB', { day: 'numeric', month: 'short' });
+}
+function fmtLong(iso) {
+  return new Date(iso + 'T12:00:00').toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+}
+function uid() {
+  return 'ROAM-' + Math.random().toString(36).slice(2, 8).toUpperCase();
+}
+function mode() {
+  return MODES.find(m => m.id === state.modeId) || MODES[0];
+}
+function datesInRange(start, end, dows, noWE) {
+  if (!start || !end || start > end) return [];
+  const out = []; let c = new Date(start + 'T12:00:00');
+  const e = new Date(end + 'T12:00:00');
+  while (c <= e) {
+    const iso = c.toISOString().split('T')[0];
+    const wd = WDAYS[(c.getDay() + 6) % 7];
+    const we = c.getDay() === 0 || c.getDay() === 6;
+    if ((!dows || dows.includes(wd)) && !(noWE && we)) out.push(iso);
+    c.setDate(c.getDate() + 1);
+  }
+  return out;
+}
+function computedDates() {
+  if (!state.pick) return [];
+  if (state.schedType === 'single') return [state.date];
+  if (state.schedType === 'recurring')
+    return state.schedDays.length ? datesInRange(state.rs, state.re, state.schedDays, false) : [];
+  if (state.schedType === 'range')
+    return datesInRange(state.rs2, state.re2, null, state.noWE);
+  if (state.schedType === 'custom')
+    return [...state.custom].sort();
+  return [];
+}
+function ticketPrice() {
+  if (!state.pick) return 0;
+  return state.cls === 'Standard' ? state.pick.price : (state.pick.priceFirst || state.pick.price);
+}
+function totalCost() {
+  return +(ticketPrice() * computedDates().length * state.schedPax).toFixed(2);
+}
+
+// ══════════════════════════════════════════════════════
+//  NAVIGATION
+// ══════════════════════════════════════════════════════
+
+function navTo(id) {
+  // Update screens
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById('screen-' + id).classList.add('active');
+  document.getElementById('screens').scrollTop = 0;
+
+  // Nav bar
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  if (id === 'home' || id === 'results' || id === 'schedule') {
+    document.getElementById('nav-home').classList.add('active');
+  } else {
+    document.getElementById('nav-' + id)?.classList.add('active');
+  }
+
+  // Topbar
+  const logoEl = document.getElementById('tb-logo');
+  const titleEl = document.getElementById('tb-title');
+  const backEl = document.getElementById('topback');
+  const badgeEl = document.getElementById('tb-badge');
+
+  if (id === 'home') {
+    logoEl.style.display = 'flex';
+    titleEl.style.display = 'none';
+    backEl.style.display = 'none';
+    badgeEl.style.display = 'none';
+    document.getElementById('hero-accent').style.color = mode().hex;
+    document.getElementById('search-btn').style.background = mode().hex;
+  } else if (id === 'results') {
+    logoEl.style.display = 'none';
+    titleEl.style.display = 'block';
+    titleEl.textContent = mode().icon + ' Journeys';
+    backEl.style.display = 'block';
+    badgeEl.style.display = 'none';
+  } else if (id === 'schedule') {
+    logoEl.style.display = 'none';
+    titleEl.style.display = 'block';
+    titleEl.textContent = 'Schedule';
+    backEl.style.display = 'block';
+    badgeEl.style.display = 'none';
+  } else if (id === 'trips') {
+    logoEl.style.display = 'flex';
+    titleEl.style.display = 'none';
+    backEl.style.display = 'none';
+    const cnt = state.trips.length;
+    badgeEl.style.display = cnt > 0 ? 'inline-block' : 'none';
+    badgeEl.textContent = cnt;
+  }
+
+  if (['results', 'schedule'].includes(id)) {
+    screenHistory.push(id);
+  }
+  currentScreen = id;
+}
+
+function goBack() {
+  if (currentScreen === 'results') navTo('home');
+  else if (currentScreen === 'schedule') navTo('results');
+  else navTo('home');
+}
+
+// ══════════════════════════════════════════════════════
+//  TOAST
+// ══════════════════════════════════════════════════════
+
+function showToast(msg, ok = true) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.style.background = ok ? '#1DB954' : '#E03E3E';
+  el.classList.add('show');
+  setTimeout(() => el.classList.remove('show'), 3200);
+}
+
+// ══════════════════════════════════════════════════════
+//  HOME INIT
+// ══════════════════════════════════════════════════════
+
+function initHome() {
+  // Date input default
+  const di = document.getElementById('date-input');
+  di.value = state.date;
+  di.min = todayISO();
+  di.addEventListener('change', e => { state.date = e.target.value; });
+
+  // Mode chips
+  const scroll = document.getElementById('mode-scroll');
+  scroll.innerHTML = '';
+  MODES.forEach(m => {
+    const btn = document.createElement('button');
+    btn.className = 'mode-chip' + (m.id === state.modeId ? ' active' : '');
+    btn.style.borderColor = m.id === state.modeId ? m.hex : '';
+    btn.style.background = m.id === state.modeId ? m.hex + '22' : '';
+    btn.style.color = m.id === state.modeId ? '#fff' : '';
+    btn.innerHTML = `<span>${m.icon}</span><span>${m.label}</span>`;
+    btn.addEventListener('click', () => selectMode(m.id));
+    scroll.appendChild(btn);
+  });
+
+  // Autocomplete
+  setupAutocomplete('from-input', 'from-suggest', v => { state.from = v; }, () => state.modeId);
+  setupAutocomplete('to-input', 'to-suggest', v => { state.to = v; }, () => state.modeId);
+
+  document.getElementById('from-input').value = state.from;
+  document.getElementById('to-input').value = state.to;
+}
+
+function selectMode(id) {
+  state.modeId = id;
+  state.from = ''; state.to = '';
+  document.getElementById('from-input').value = '';
+  document.getElementById('to-input').value = '';
+  document.getElementById('hero-accent').style.color = mode().hex;
+  document.getElementById('search-btn').style.background = mode().hex;
+  // Re-render chips
+  document.querySelectorAll('.mode-chip').forEach((btn, i) => {
+    const m = MODES[i];
+    btn.classList.toggle('active', m.id === id);
+    btn.style.borderColor = m.id === id ? m.hex : '';
+    btn.style.background = m.id === id ? m.hex + '22' : '';
+    btn.style.color = m.id === id ? '#fff' : '';
+  });
+}
+
+function setupAutocomplete(inputId, suggestId, onSet, getModeId) {
+  const inp = document.getElementById(inputId);
+  const sug = document.getElementById(suggestId);
+
+  inp.addEventListener('input', () => {
+    const val = inp.value.toLowerCase();
+    const stations = STATIONS[getModeId()] || [];
+    const matches = stations.filter(s => s.toLowerCase().includes(val) && s.toLowerCase() !== val).slice(0, 7);
+    if (matches.length && val.length > 0) {
+      sug.innerHTML = matches.map(s =>
+        `<button class="suggest-item" onmousedown="pickSuggest('${inputId}','${suggestId}','${s.replace(/'/g,"\\'")}')">
+          <span class="suggest-dot" style="background:${mode().hex}"></span>${s}
+        </button>`
+      ).join('');
+      sug.style.display = 'block';
+    } else {
+      sug.style.display = 'none';
+    }
+    onSet(inp.value);
+  });
+  inp.addEventListener('blur', () => setTimeout(() => { sug.style.display = 'none'; }, 160));
+}
+
+function pickSuggest(inputId, suggestId, val) {
+  document.getElementById(inputId).value = val;
+  document.getElementById(suggestId).style.display = 'none';
+  if (inputId === 'from-input') state.from = val;
+  else state.to = val;
+}
+
+function swapLocations() {
+  const tmp = state.from;
+  state.from = state.to;
+  state.to = tmp;
+  document.getElementById('from-input').value = state.from;
+  document.getElementById('to-input').value = state.to;
+}
+
+function changePax(d) {
+  state.pax = Math.min(9, Math.max(1, state.pax + d));
+  document.getElementById('pax-num').textContent = state.pax;
+  state.schedPax = state.pax;
+}
+
+// ══════════════════════════════════════════════════════
+//  JOURNEY GENERATION
+// ══════════════════════════════════════════════════════
+
+function buildJourneys(modeId, from, to) {
+  const bases  = {train:42,tube:4.9,metro:3.4,bus:13,ferry:24,flight:92,cab:18,taxi:14};
+  const durs   = {train:110,tube:30,metro:26,bus:95,ferry:85,flight:78,cab:25,taxi:20};
+  const base = bases[modeId]||22, dur = durs[modeId]||40;
+  const ops = OPERATORS[modeId]||['Operator'];
+  const hasFirst = modeId==='train'||modeId==='flight';
+  const out=[]; let h=5, m=20;
+  for(let i=0;i<9;i++){
+    m += 15+Math.floor(Math.random()*25);
+    if(m>=60){h+=Math.floor(m/60);m%=60;}
+    if(h>=23) break;
+    const aMin=m+dur, aH=h+Math.floor(aMin/60), aM=aMin%60;
+    const price = +(base*(0.75+Math.random()*0.5)).toFixed(2);
+    out.push({
+      id:'j'+i, from, to,
+      dep:String(h).padStart(2,'0')+':'+String(m).padStart(2,'0'),
+      arr:String(aH).padStart(2,'0')+':'+String(aM).padStart(2,'0'),
+      dur:Math.floor(dur/60)+'h '+String(dur%60).padStart(2,'0')+'m',
+      op: ops[i%ops.length],
+      price, priceFirst: hasFirst ? +(price*1.9).toFixed(2) : null,
+      seats: Math.floor(Math.random()*140)+3,
+      changes: modeId==='train'&&Math.random()>.65?1:0,
+    });
+  }
+  return out;
+}
+
+// ══════════════════════════════════════════════════════
+//  SEARCH + RESULTS
+// ══════════════════════════════════════════════════════
+
+function doSearch() {
+  state.from = document.getElementById('from-input').value.trim();
+  state.to   = document.getElementById('to-input').value.trim();
+  state.date = document.getElementById('date-input').value;
+  if (!state.from || !state.to) { showToast('Enter both origin and destination', false); return; }
+  if (state.from === state.to)  { showToast('Origin and destination must differ', false); return; }
+  state.journeys = buildJourneys(state.modeId, state.from, state.to);
+  renderResults();
+  navTo('results');
+}
+
+function renderResults() {
+  const m = mode();
+  document.getElementById('results-route').textContent = `${m.icon} ${state.from} → ${state.to}`;
+  document.getElementById('results-sub').textContent =
+    `${fmtLong(state.date)} · ${state.pax} passenger${state.pax>1?'s':''} · ${state.journeys.length} results`;
+
+  const list = document.getElementById('results-list');
+  list.innerHTML = state.journeys.map((j, i) => {
+    const low = j.seats < 12;
+    return `
+    <div class="j-card" style="animation-delay:${i*40}ms" onclick="selectJourney('${j.id}')">
+      <div class="j-times">
+        <div>
+          <div class="j-big">${j.dep}</div>
+          <div class="j-st">${j.from}</div>
+        </div>
+        <div class="j-mid">
+          <div class="j-line">
+            <div class="j-dot" style="background:${m.hex}"></div>
+            <div class="j-track" style="background:${m.hex}"></div>
+            <span class="j-dur">${j.dur}${j.changes?' · 1 chg':''}</span>
+            <div class="j-track" style="background:${m.hex}"></div>
+            <div class="j-dot" style="background:${m.hex}"></div>
+          </div>
+        </div>
+        <div style="text-align:right">
+          <div class="j-big">${j.arr}</div>
+          <div class="j-st">${j.to}</div>
+        </div>
+      </div>
+      <div class="j-bottom">
+        <div>
+          <div class="j-op">${j.op}</div>
+          <div class="j-seats" style="color:${low?'var(--red)':'var(--mut)'}">${low?'⚠ '+j.seats+' seats':j.seats+' seats'}</div>
+          ${j.priceFirst?`<div class="j-op" style="margin-top:2px">1st: £${j.priceFirst.toFixed(2)}</div>`:''}
+        </div>
+        <div class="j-price-col">
+          <div class="j-price" style="color:${m.hex}">£${j.price.toFixed(2)}</div>
+          <div class="j-per">per person</div>
+          ${state.pax>1?`<div class="j-per" style="color:#aaa">£${(j.price*state.pax).toFixed(2)} total</div>`:''}
+        </div>
+      </div>
+      <button class="j-sel-btn" style="background:${m.hex}" onclick="event.stopPropagation();selectJourney('${j.id}')">
+        Select &amp; Schedule →
+      </button>
+    </div>`;
+  }).join('');
+}
+
+// ══════════════════════════════════════════════════════
+//  SCHEDULE
+// ══════════════════════════════════════════════════════
+
+function selectJourney(id) {
+  state.pick = state.journeys.find(j => j.id === id);
+  state.cls = 'Standard';
+  state.schedType = 'single';
+  state.schedDays = [];
+  state.rs = state.date;
+  state.re = shiftDate(state.date, 13);
+  state.rs2 = state.date;
+  state.re2 = shiftDate(state.date, 13);
+  state.noWE = false;
+  state.custom = [];
+  state.schedPax = state.pax;
+  renderSchedule();
+  navTo('schedule');
+}
+
+function renderSchedule() {
+  const m = mode();
+  const j = state.pick;
+  if (!j) return;
+
+  // Recap
+  document.getElementById('journey-recap').innerHTML = `
+    <div class="recap-row">
+      <div><div class="recap-time">${j.dep}</div><div class="recap-st">${j.from}</div></div>
+      <div class="recap-mid">
+        <div class="recap-arrow" style="color:${m.hex}">— ${m.icon} —</div>
+        <div class="recap-dur">${j.dur}</div>
+      </div>
+      <div style="text-align:right"><div class="recap-time">${j.arr}</div><div class="recap-st">${j.to}</div></div>
+    </div>
+    <div class="recap-meta">${m.icon} ${m.label} · ${j.op}</div>
+  `;
+
+  // Ticket class
+  if (j.priceFirst) {
+    document.getElementById('cls-card').style.display = 'block';
+    document.getElementById('cls-row').innerHTML = ['Standard','First Class'].map(c => `
+      <button class="cls-btn ${state.cls===c?'active':''}" style="${state.cls===c?`border-color:${m.hex};background:${m.hex}22`:''}"
+        onclick="selectCls('${c}')">
+        <span class="cls-name" style="${state.cls===c?`color:${m.hex}`:'color:var(--txt)'}">${c}</span>
+        <span class="cls-price">£${(c==='Standard'?j.price:j.priceFirst).toFixed(2)} / person</span>
+      </button>`).join('');
+  } else {
+    document.getElementById('cls-card').style.display = 'none';
+  }
+
+  // DOW buttons
+  document.getElementById('dow-row').innerHTML = WDAYS.map(d => `
+    <button class="dow-btn ${state.schedDays.includes(d)?'active':''}"
+      style="${state.schedDays.includes(d)?`background:${m.hex};color:#fff;border-color:${m.hex}`:''}"
+      onclick="toggleDay('${d}')">${d}</button>`).join('');
+
+  // Single date label
+  document.getElementById('single-date-lbl').textContent = fmtLong(state.date);
+
+  // Range inputs
+  document.getElementById('rs-input').value = state.rs;
+  document.getElementById('re-input').value = state.re;
+  document.getElementById('rs2-input').value = state.rs2;
+  document.getElementById('re2-input').value = state.re2;
+  document.getElementById('no-we-check').checked = state.noWE;
+
+  // Range listeners
+  document.getElementById('rs-input').onchange = e => { state.rs = e.target.value; updateSummary(); };
+  document.getElementById('re-input').onchange = e => { state.re = e.target.value; updateSummary(); };
+  document.getElementById('rs2-input').onchange = e => { state.rs2 = e.target.value; updateSummary(); };
+  document.getElementById('re2-input').onchange = e => { state.re2 = e.target.value; updateSummary(); };
+  document.getElementById('no-we-check').onchange = e => { state.noWE = e.target.checked; updateSummary(); };
+
+  setSchedType(state.schedType);
+  updateSummary();
+  updateSchedPaxUI();
+
+  // Button colors
+  document.getElementById('confirm-btn').style.background = m.hex;
+  document.querySelectorAll('.pax-lg-btn').forEach(b => b.style.borderColor = m.hex);
+}
+
+function selectCls(c) {
+  state.cls = c;
+  const m = mode();
+  const j = state.pick;
+  document.querySelectorAll('.cls-btn').forEach((btn, i) => {
+    const cl = i === 0 ? 'Standard' : 'First Class';
+    btn.style.borderColor = cl === c ? m.hex : '';
+    btn.style.background  = cl === c ? m.hex + '22' : '';
+    btn.querySelector('.cls-name').style.color = cl === c ? m.hex : 'var(--txt)';
+    btn.querySelector('.cls-price').textContent = `£${(cl==='Standard'?j.price:j.priceFirst).toFixed(2)} / person`;
+  });
+  updateSummary();
+}
+
+function setSchedType(t) {
+  state.schedType = t;
+  ['single','recurring','range','custom'].forEach(type => {
+    const btn = document.getElementById('stype-' + type);
+    const cfg = document.getElementById('cfg-' + type);
+    const m = mode();
+    const active = type === t;
+    btn.style.borderColor = active ? m.hex : '';
+    btn.style.background  = active ? m.hex + '18' : '';
+    btn.querySelector('.stype-name').style.color = active ? m.hex : 'var(--txt)';
+    if (cfg) cfg.style.display = active ? 'block' : 'none';
+  });
+  if (t === 'custom') renderCal();
+  updateSummary();
+}
+
+function toggleDay(d) {
+  if (state.schedDays.includes(d)) {
+    state.schedDays = state.schedDays.filter(x => x !== d);
+  } else {
+    state.schedDays.push(d);
+  }
+  const m = mode();
+  document.querySelectorAll('.dow-btn').forEach((btn, i) => {
+    const day = WDAYS[i];
+    const active = state.schedDays.includes(day);
+    btn.classList.toggle('active', active);
+    btn.style.background   = active ? m.hex : '';
+    btn.style.color        = active ? '#fff' : '';
+    btn.style.borderColor  = active ? m.hex : '';
+  });
+  document.getElementById('dow-err').style.display = state.schedDays.length ? 'none' : 'block';
+  updateSummary();
+}
+
+function changeSchedPax(d) {
+  state.schedPax = Math.min(9, Math.max(1, state.schedPax + d));
+  updateSchedPaxUI();
+  updateSummary();
+}
+
+function updateSchedPaxUI() {
+  document.getElementById('sched-pax-num').textContent =
+    `${state.schedPax} passenger${state.schedPax > 1 ? 's' : ''}`;
+}
+
+function updateSummary() {
+  const dates = computedDates();
+  const total = totalCost();
+  const m = mode();
+
+  document.getElementById('sum-count').textContent =
+    dates.length ? `${dates.length} journey${dates.length !== 1 ? 's' : ''} selected` : 'No dates selected yet';
+
+  document.getElementById('sum-total').textContent = dates.length ? `£${total.toFixed(2)}` : '£0.00';
+  document.getElementById('sum-total').style.color = m.hex;
+
+  // Date pills
+  const datesEl = document.getElementById('sum-dates');
+  if (dates.length) {
+    datesEl.innerHTML = dates.slice(0, 10).map(d =>
+      `<div class="sum-pill" style="background:${m.hex}18;color:${m.hex};border-color:${m.hex}44">
+        <span class="sum-dow">${dayLabel(d)}</span>
+        <span>${fmtShort(d)}</span>
+      </div>`
+    ).join('') + (dates.length > 10 ? `<div class="more-pill">+${dates.length - 10} more</div>` : '');
+    datesEl.style.display = 'flex';
+  } else {
+    datesEl.innerHTML = '';
+    datesEl.style.display = 'none';
+  }
+}
+
+// ══════════════════════════════════════════════════════
+//  CALENDAR
+// ══════════════════════════════════════════════════════
+
+function renderCal() {
+  const {month:vm, year:vy} = calState;
+  const m = mode();
+  const today = todayISO();
+  const dim = new Date(vy, vm+1, 0).getDate();
+  const firstDow = (new Date(vy, vm, 1).getDay() + 6) % 7;
+  const monthName = new Date(vy, vm).toLocaleDateString('en-GB', {month:'long',year:'numeric'});
+
+  let html = `<div class="cal-wrap">
+    <div class="cal-nav">
+      <button class="cal-nav-btn" onclick="calPrev()">‹</button>
+      <span class="cal-month">${monthName}</span>
+      <button class="cal-nav-btn" onclick="calNext()">›</button>
+    </div>
+    <div class="cal-grid">`;
+  ['Mo','Tu','We','Th','Fr','Sa','Su'].forEach(d => {
+    html += `<div class="cal-head">${d}</div>`;
+  });
+  for (let i=0;i<firstDow;i++) html += '<div></div>';
+  for (let d=1;d<=dim;d++) {
+    const iso = `${vy}-${String(vm+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    const past = iso < today;
+    const sel = state.custom.includes(iso);
+    const selStyle = sel ? `background:${m.hex};color:#fff;border-color:${m.hex};font-weight:800` : '';
+    html += `<button class="cal-day${past?' past':''}${sel?' sel':''}" style="${selStyle}"
+      onclick="toggleCalDate('${iso}')">${d}</button>`;
+  }
+  html += `</div><div class="cal-count">${state.custom.length} date${state.custom.length!==1?'s':''} selected</div></div>`;
+  document.getElementById('cal-mount').innerHTML = html;
+}
+
+function calPrev() {
+  if (calState.month === 0) { calState.month = 11; calState.year--; }
+  else calState.month--;
+  renderCal();
+}
+function calNext() {
+  if (calState.month === 11) { calState.month = 0; calState.year++; }
+  else calState.month++;
+  renderCal();
+}
+function toggleCalDate(iso) {
+  if (state.custom.includes(iso)) {
+    state.custom = state.custom.filter(d => d !== iso);
+  } else {
+    state.custom.push(iso);
+  }
+  renderCal();
+  updateSummary();
+}
+
+// ══════════════════════════════════════════════════════
+//  BOOKING CONFIRMATION
+// ══════════════════════════════════════════════════════
+
+function confirmBooking() {
+  const dates = computedDates();
+  if (!dates.length) { showToast('Select at least one travel date', false); return; }
+  const ref = uid();
+  state.trips.unshift({
+    id: Date.now(), ref,
+    mode: {...mode()},
+    journey: {...state.pick},
+    cls: state.cls,
+    pax: state.schedPax,
+    dates,
+    priceEach: ticketPrice(),
+    total: totalCost(),
+    bookedAt: new Date().toISOString(),
+  });
+  showToast(`✓ ${dates.length} journey${dates.length>1?'s':''} booked! ${ref}`);
+  renderTrips();
+  navTo('trips');
+  // Update badge
+  document.getElementById('tb-badge').textContent = state.trips.length;
+}
+
+// ══════════════════════════════════════════════════════
+//  TRIPS
+// ══════════════════════════════════════════════════════
+
+function renderTrips() {
+  const empty = document.getElementById('trips-empty');
+  const list  = document.getElementById('trips-list');
+
+  if (!state.trips.length) {
+    empty.style.display = 'block';
+    list.innerHTML = '';
+    return;
+  }
+  empty.style.display = 'none';
+  list.innerHTML = state.trips.map(b => {
+    const m = b.mode;
+    return `
+    <div class="trip-card" id="trip-${b.id}">
+      <div class="trip-top-bar" style="background:${m.hex}"></div>
+      <div class="trip-header" onclick="toggleTrip(${b.id})">
+        <div class="trip-mode-pill" style="background:${m.hex}22;color:${m.hex}">${m.icon} ${m.label}</div>
+        <div class="trip-route">${b.journey.from} <span style="color:${m.hex}">→</span> ${b.journey.to}</div>
+        <div class="trip-meta">${b.journey.dep} → ${b.journey.arr} · ${b.journey.op} · ${b.cls}</div>
+        <div class="trip-footer-row">
+          <div>
+            <div class="trip-total" style="color:${m.hex}">£${b.total.toFixed(2)}</div>
+            <div class="trip-count">${b.dates.length} journey${b.dates.length!==1?'s':''}</div>
+          </div>
+          <div style="text-align:right">
+            <div class="trip-ref">${b.ref}</div>
+            <div class="trip-chev" id="chev-${b.id}">▼</div>
+          </div>
+        </div>
+      </div>
+      <div class="trip-expand" id="expand-${b.id}" style="display:none">
+        <div class="trip-exp-label">TRAVEL DATES · ${b.pax} PASSENGER${b.pax>1?'S':''}</div>
+        <div class="trip-date-grid">
+          ${b.dates.map(d => `
+            <div class="trip-date-chip" style="border-color:${m.hex}55;background:${m.hex}15">
+              <span style="color:${m.hex};font-weight:800;font-size:10px;text-transform:uppercase">${dayLabel(d)}</span>
+              <span style="font-size:12px;color:#ccc">${fmtShort(d)}</span>
+            </div>`).join('')}
+        </div>
+        <div class="trip-breakdown">
+          £${b.priceEach.toFixed(2)} × ${b.dates.length} journeys × ${b.pax} pax = <strong style="color:${m.hex}">£${b.total.toFixed(2)}</strong>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function toggleTrip(id) {
+  const exp  = document.getElementById('expand-' + id);
+  const chev = document.getElementById('chev-' + id);
+  const open = exp.style.display !== 'none';
+  exp.style.display  = open ? 'none' : 'block';
+  chev.textContent   = open ? '▼' : '▲';
+}
+
+// ══════════════════════════════════════════════════════
+//  BOOT
+// ══════════════════════════════════════════════════════
+
+function boot() {
+  initHome();
+  renderTrips();
+  navTo('home');
+
+  // Service worker
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('sw.js').catch(() => {});
+  }
+}
+
+boot();
+</script>
+</body>
+</html>

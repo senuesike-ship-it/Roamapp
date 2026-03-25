@@ -1,0 +1,1 @@
+A multiday and multitravel system booking app that allows you book travel tickets for different transportation service all in one place. It also allow users the flexibility to book multiple tickets all in one go.

@@ -1,74 +1,117 @@
 {
-  "name": "ROAM — Multi-Travel Booking",
+  "id": "com.roamapp.twa",
+  "name": "ROAM \u2014 Multi-Travel Booking",
   "short_name": "ROAM",
-  "description": "Book train, tube, bus, metro, ferry, flight, cab and taxi tickets. Schedule your whole week in a single checkout with multi-day booking.",
+  "description": "Book train, tube, metro, bus, ferry, flight, cab and taxi tickets. Schedule your whole week in a single checkout with multi-day booking.",
   "start_url": "/",
+  "scope": "/",
   "display": "standalone",
-  "display_override": ["window-controls-overlay", "standalone"],
   "orientation": "portrait",
   "background_color": "#0B0E17",
   "theme_color": "#0B0E17",
-  "categories": ["travel", "transportation"],
   "lang": "en-GB",
+  "dir": "ltr",
+  "categories": [
+    "travel",
+    "transportation"
+  ],
+  "iarc_rating_id": "",
+  "prefer_related_applications": false,
   "icons": [
     {
-      "src": "icons/icon-72.png",
+      "src": "https://lucky-khapse-8c6898.netlify.app/icons/icon-72.png",
       "sizes": "72x72",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "icons/icon-96.png",
+      "src": "https://lucky-khapse-8c6898.netlify.app/icons/icon-96.png",
       "sizes": "96x96",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "icons/icon-128.png",
+      "src": "https://lucky-khapse-8c6898.netlify.app/icons/icon-128.png",
       "sizes": "128x128",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "icons/icon-144.png",
+      "src": "https://lucky-khapse-8c6898.netlify.app/icons/icon-144.png",
       "sizes": "144x144",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "icons/icon-152.png",
+      "src": "https://lucky-khapse-8c6898.netlify.app/icons/icon-152.png",
       "sizes": "152x152",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "icons/icon-192.png",
+      "src": "https://lucky-khapse-8c6898.netlify.app/icons/icon-192.png",
       "sizes": "192x192",
       "type": "image/png",
-      "purpose": "any maskable"
+      "purpose": "maskable"
     },
     {
-      "src": "icons/icon-384.png",
+      "src": "https://lucky-khapse-8c6898.netlify.app/icons/icon-384.png",
       "sizes": "384x384",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "icons/icon-512.png",
+      "src": "https://lucky-khapse-8c6898.netlify.app/icons/icon-512.png",
       "sizes": "512x512",
       "type": "image/png",
-      "purpose": "any maskable"
+      "purpose": "maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Plan a Journey",
+      "short_name": "Plan",
+      "description": "Search and book a new journey",
+      "url": "/",
+      "icons": [
+        {
+          "src": "https://lucky-khapse-8c6898.netlify.app/icons/icon-96.png",
+          "sizes": "96x96",
+          "type": "image/png"
+        }
+      ]
+    },
+    {
+      "name": "My Trips",
+      "short_name": "Trips",
+      "description": "View all booked journeys",
+      "url": "/",
+      "icons": [
+        {
+          "src": "https://lucky-khapse-8c6898.netlify.app/icons/icon-96.png",
+          "sizes": "96x96",
+          "type": "image/png"
+        }
+      ]
     }
   ],
   "screenshots": [
     {
-      "src": "screenshots/home.png",
+      "src": "https://lucky-khapse-8c6898.netlify.app/screenshots/home.png",
       "sizes": "390x844",
       "type": "image/png",
       "form_factor": "narrow",
-      "label": "Home screen — search all transport modes"
+      "label": "Home screen \u2014 search all transport modes"
     },
     {
+      "src": "https://lucky-khapse-8c6898.netlify.app/screenshots/schedule.png",
+      "sizes": "390x844",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "Multi-day scheduling \u2014 book recurring journeys"
+    }
+  ]
+}    {
       "src": "screenshots/schedule.png",
       "sizes": "390x844",
       "type": "image/png",

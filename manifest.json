@@ -111,28 +111,4 @@
       "label": "Multi-day scheduling \u2014 book recurring journeys"
     }
   ]
-}    {
-      "src": "screenshots/schedule.png",
-      "sizes": "390x844",
-      "type": "image/png",
-      "form_factor": "narrow",
-      "label": "Multi-day scheduling — book recurring journeys"
-    }
-  ],
-  "shortcuts": [
-    {
-      "name": "Book a Train",
-      "short_name": "Train",
-      "description": "Quickly book a train journey",
-      "url": "/?mode=train",
-      "icons": [{ "src": "icons/icon-96.png", "sizes": "96x96" }]
-    },
-    {
-      "name": "My Trips",
-      "short_name": "Trips",
-      "description": "View all booked journeys",
-      "url": "/?screen=trips",
-      "icons": [{ "src": "icons/icon-96.png", "sizes": "96x96" }]
-    }
-  ]
 }
